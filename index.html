@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tetris JS - Single Page</title>
+  <title>Tetris JS - Responsive Single Page</title>
   <style>
     :root {
       --bg: #0f1221;
@@ -34,6 +34,11 @@
       padding: 16px;
       backdrop-filter: blur(6px);
     }
+    #game {
+      width: min(300px, 100%);
+      height: auto;
+      aspect-ratio: 1 / 2;
+    }
     canvas {
       background: linear-gradient(#0a0d1e, #111738);
       border: 1px solid #2d345f;
@@ -61,6 +66,19 @@
     .label { color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; }
     .value { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
     .controls { font-size: .85rem; line-height: 1.45; color: #cbd5e1; }
+    .touch-controls {
+      display: none;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .touch-controls button {
+      padding: 12px 6px;
+      font-size: 1rem;
+      border: 1px solid rgba(255,255,255,.12);
+      background: #242b52;
+    }
+    .touch-controls .wide { grid-column: span 3; }
     button {
       border: none;
       border-radius: 8px;
@@ -77,37 +95,49 @@
       min-height: 22px;
     }
     @media (max-width: 760px) {
-      .wrap { grid-template-columns: 1fr; }
+      body { padding: 10px; }
+      .wrap { 
+        width: min(100%, 520px);
+        grid-template-columns: 1fr;
+      }
       .hud { order: -1; }
+      .touch-controls { display: grid; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <canvas id="game" width="300" height="600" aria-label="Tablero de Tetris"></canvas>
+    <canvas id="game" width="300" height="600" aria-label="Tetris board"></canvas>
     <aside class="hud">
       <div class="card">
         <h1>Tetris</h1>
-        <div class="label">Puntaje</div>
+        <div class="label">Score</div>
         <div class="value" id="score">0</div>
-        <div class="label">Nivel</div>
+        <div class="label">Level</div>
         <div class="value" id="level">1</div>
-        <div class="label">Líneas</div>
+        <div class="label">Lines</div>
         <div class="value" id="lines">0</div>
       </div>
       <div class="card">
-        <div class="label">Próxima pieza</div>
+        <div class="label">Next piece</div>
         <canvas id="next" width="120" height="120"></canvas>
       </div>
       <div class="card controls">
-        <strong>Controles:</strong><br>
-        ← → mover<br>
-        ↑ rotar<br>
-        ↓ bajar rápido<br>
-        Espacio: caída dura<br>
-        P: pausa
+        <strong>Controls:</strong><br>
+        ← → move<br>
+        ↑ rotate<br>
+        ↓ soft drop<br>
+        Space: hard drop<br>
+        P: pause
       </div>
-      <button id="restart">Reiniciar partida</button>
+      <div class="touch-controls" aria-label="Mobile controls">
+        <button data-action="left">← Left</button>
+        <button data-action="rotate">↻ Rotate</button>
+        <button data-action="right">Right →</button>
+        <button data-action="down">↓ Down</button>
+        <button class="wide" data-action="drop">⤓ Hard Drop</button>
+      </div>
+      <button id="restart">Restart game</button>
       <div class="over" id="status"></div>
     </aside>
   </div>
@@ -144,6 +174,7 @@
   const linesEl = document.getElementById('lines');
   const statusEl = document.getElementById('status');
   const restartBtn = document.getElementById('restart');
+  const touchButtons = document.querySelectorAll('[data-action]');
 
   let score = 0;
   let lines = 0;
@@ -241,7 +272,7 @@
     next = createPiece();
     if (collide(current)) {
       gameOver = true;
-      statusEl.textContent = '💀 Game Over. Presiona Reiniciar.';
+      statusEl.textContent = '💀 Game Over. Press Restart.';
     }
   }
 
@@ -337,7 +368,7 @@
     if (gameOver && e.key.toLowerCase() !== 'r') return;
     if (e.key.toLowerCase() === 'p') {
       paused = !paused;
-      statusEl.textContent = paused ? '⏸️ Pausa' : '';
+      statusEl.textContent = paused ? '⏸️ Paused' : '';
       return;
     }
     if (paused || gameOver) return;
@@ -356,6 +387,25 @@
       e.preventDefault();
       hardDrop();
     }
+  });
+
+  function handleAction(action) {
+    if (paused || gameOver) return;
+    if (action === 'left' && !collide(current, -1, 0)) current.x--;
+    else if (action === 'right' && !collide(current, 1, 0)) current.x++;
+    else if (action === 'down' && !collide(current, 0, 1)) {
+      current.y++;
+      score += 1;
+      updateHud();
+    } else if (action === 'rotate') {
+      tryRotate();
+    } else if (action === 'drop') {
+      hardDrop();
+    }
+  }
+
+  touchButtons.forEach((button) => {
+    button.addEventListener('click', () => handleAction(button.dataset.action));
   });
 
   restartBtn.addEventListener('click', restart);
