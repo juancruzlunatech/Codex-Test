@@ -6,97 +6,140 @@
   <title>Tetris JS - Responsive Single Page</title>
   <style>
     :root {
-      --bg: #0f1221;
-      --panel: #171b31;
-      --accent: #8b5cf6;
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --bg: #070b1e;
+      --panel: rgba(12, 19, 47, 0.8);
+      --panel-border: rgba(154, 178, 255, 0.24);
+      --accent: #7dd3fc;
+      --text: #ecf2ff;
+      --muted: #a7b8dd;
+      --btn-start: #5b8cff;
+      --btn-end: #7c4dff;
+      --btn-shadow: rgba(57, 103, 246, 0.42);
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       min-height: 100vh;
       display: grid;
       place-items: center;
-      background: radial-gradient(circle at top, #1f2644, var(--bg) 60%);
       color: var(--text);
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       padding: 20px;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(80, 160, 255, 0.25), transparent 40%),
+        radial-gradient(circle at 85% 12%, rgba(185, 120, 255, 0.24), transparent 35%),
+        radial-gradient(circle at 50% 100%, rgba(124, 240, 214, 0.2), transparent 42%),
+        linear-gradient(155deg, #050814 0%, #0a1230 45%, #101d46 100%);
+      overflow-x: hidden;
     }
+
     .wrap {
       display: grid;
-      grid-template-columns: auto 220px;
+      grid-template-columns: auto 240px;
       gap: 18px;
-      background: rgba(10, 13, 28, 0.7);
-      border: 1px solid #2d345f;
-      border-radius: 14px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      background: rgba(5, 11, 33, 0.68);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(2, 6, 18, 0.6);
       padding: 16px;
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(8px);
     }
+
     #game {
       width: min(300px, 100%);
       height: auto;
       aspect-ratio: 1 / 2;
     }
+
     canvas {
-      background: linear-gradient(#0a0d1e, #111738);
-      border: 1px solid #2d345f;
-      border-radius: 10px;
+      background:
+        linear-gradient(rgba(12, 24, 62, 0.92), rgba(10, 19, 48, 0.95)),
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.04) 0,
+          rgba(255, 255, 255, 0.04) 1px,
+          transparent 1px,
+          transparent 30px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.04) 0,
+          rgba(255, 255, 255, 0.04) 1px,
+          transparent 1px,
+          transparent 30px
+        );
+      border: 1px solid rgba(161, 189, 255, 0.32);
+      border-radius: 12px;
       image-rendering: pixelated;
       display: block;
     }
+
     .hud {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
+
     .card {
       background: var(--panel);
-      border: 1px solid #2d345f;
-      border-radius: 10px;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
       padding: 10px;
     }
+
     h1 {
       margin: 0 0 10px;
       font-size: 1.1rem;
-      color: #d8b4fe;
+      color: #c7d8ff;
       letter-spacing: .04em;
     }
+
     .label { color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; }
     .value { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
-    .controls { font-size: .85rem; line-height: 1.45; color: #cbd5e1; }
+    .controls { font-size: .85rem; line-height: 1.45; color: #d9e4ff; }
+
     .touch-controls {
       display: none;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
       margin-top: 8px;
     }
+
     .touch-controls button {
       padding: 12px 6px;
-      font-size: 1rem;
-      border: 1px solid rgba(255,255,255,.12);
-      background: #242b52;
+      font-size: .96rem;
+      border: 1px solid rgba(194, 211, 255, .28);
+      background: linear-gradient(135deg, rgba(97, 138, 255, .95), rgba(125, 88, 255, .95));
+      box-shadow: 0 8px 16px rgba(66, 69, 180, .28);
     }
+
     .touch-controls .wide { grid-column: span 3; }
+    .touch-controls .side { grid-column: span 1; }
+
     button {
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 10px;
-      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      background: linear-gradient(135deg, var(--btn-start), var(--btn-end));
       color: #fff;
       font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 10px 20px var(--btn-shadow);
     }
+
     button:hover { filter: brightness(1.08); }
+
     .over {
-      color: #fda4af;
+      color: #ffd0da;
       font-weight: 700;
       min-height: 22px;
     }
+
     @media (max-width: 760px) {
       body { padding: 10px; }
-      .wrap { 
+      .wrap {
         width: min(100%, 520px);
         grid-template-columns: 1fr;
       }
@@ -135,7 +178,8 @@
         <button data-action="rotate">↻ Rotate</button>
         <button data-action="right">Right →</button>
         <button data-action="down">↓ Down</button>
-        <button class="wide" data-action="drop">⤓ Hard Drop</button>
+        <button data-action="pause" class="side">⏯ Pause</button>
+        <button data-action="drop" class="wide">⤓ Hard Drop</button>
       </div>
       <button id="restart">Restart game</button>
       <div class="over" id="status"></div>
@@ -150,8 +194,13 @@
   const board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 
   const colors = {
-    I: '#22d3ee', O: '#fde047', T: '#c084fc', S: '#34d399',
-    Z: '#f87171', J: '#60a5fa', L: '#fb923c'
+    I: '#5ee7ff',
+    O: '#ffe58f',
+    T: '#c7a6ff',
+    S: '#70f6c3',
+    Z: '#ff8fa6',
+    J: '#8fc8ff',
+    L: '#ffc07a'
   };
 
   const shapes = {
@@ -205,10 +254,20 @@
   let next = createPiece();
 
   function drawBlock(c, x, y, color) {
+    const px = x * BLOCK;
+    const py = y * BLOCK;
+
     c.fillStyle = color;
-    c.fillRect(x * BLOCK, y * BLOCK, BLOCK, BLOCK);
-    c.strokeStyle = 'rgba(255,255,255,.15)';
-    c.strokeRect(x * BLOCK + .5, y * BLOCK + .5, BLOCK - 1, BLOCK - 1);
+    c.fillRect(px, py, BLOCK, BLOCK);
+
+    c.fillStyle = 'rgba(255,255,255,0.2)';
+    c.fillRect(px + 2, py + 2, BLOCK - 4, 5);
+
+    c.fillStyle = 'rgba(10,20,45,0.2)';
+    c.fillRect(px + 2, py + BLOCK - 8, BLOCK - 4, 6);
+
+    c.strokeStyle = 'rgba(255,255,255,.22)';
+    c.strokeRect(px + .5, py + .5, BLOCK - 1, BLOCK - 1);
   }
 
   function collide(piece, offX = 0, offY = 0, shape = piece.shape) {
@@ -299,12 +358,11 @@
       if (cell) drawBlock(ctx, x, y, colors[cell]);
     }));
 
-    // Ghost piece
     let ghostY = current.y;
     while (!collide(current, 0, ghostY - current.y + 1)) ghostY++;
     current.shape.forEach((row, y) => row.forEach((v, x) => {
       if (!v) return;
-      ctx.fillStyle = 'rgba(148,163,184,.20)';
+      ctx.fillStyle = 'rgba(167, 184, 221, 0.24)';
       ctx.fillRect((current.x + x) * BLOCK, (ghostY + y) * BLOCK, BLOCK, BLOCK);
     }));
 
@@ -324,7 +382,7 @@
       if (!v) return;
       nextCtx.fillStyle = colors[next.type];
       nextCtx.fillRect(offsetX + x * size, offsetY + y * size, size, size);
-      nextCtx.strokeStyle = 'rgba(255,255,255,.2)';
+      nextCtx.strokeStyle = 'rgba(255,255,255,.24)';
       nextCtx.strokeRect(offsetX + x * size + .5, offsetY + y * size + .5, size - 1, size - 1);
     }));
   }
@@ -364,11 +422,16 @@
     updateHud();
   }
 
+  function togglePause() {
+    if (gameOver) return;
+    paused = !paused;
+    statusEl.textContent = paused ? '⏸️ Paused' : '';
+  }
+
   document.addEventListener('keydown', (e) => {
     if (gameOver && e.key.toLowerCase() !== 'r') return;
     if (e.key.toLowerCase() === 'p') {
-      paused = !paused;
-      statusEl.textContent = paused ? '⏸️ Paused' : '';
+      togglePause();
       return;
     }
     if (paused || gameOver) return;
@@ -390,6 +453,10 @@
   });
 
   function handleAction(action) {
+    if (action === 'pause') {
+      togglePause();
+      return;
+    }
     if (paused || gameOver) return;
     if (action === 'left' && !collide(current, -1, 0)) current.x--;
     else if (action === 'right' && !collide(current, 1, 0)) current.x++;
