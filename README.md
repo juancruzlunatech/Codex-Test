@@ -1,6 +1,6 @@
 # Tetris JavaScript
 
-A Tetris clone built in a single HTML file using JavaScript and Canvas rendering.
+A Tetris clone built in a single HTML file using JavaScript and Canvas rendering. You can play the game live here: https://juancruzlunatech.github.io/Tetris_single_File_JavaScript/
 
 ![Game screenshot](Game_Screnshot.png)
 
@@ -12,6 +12,7 @@ This project recreates the classic Tetris mechanics with:
 - full-line clearing,
 - score, level, and line tracking,
 - keyboard controls and a touch-friendly version for mobile devices.
+- a playable version available online at the GitHub Pages link above.
 
 ## Technologies used
 
